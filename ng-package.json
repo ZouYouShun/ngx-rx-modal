@@ -3,6 +3,13 @@
   "dest": "../../dist/ngx-rx-modal",
   "deleteDestPath": false,
   "lib": {
-    "entryFile": "src/public_api.ts"
-  }
+    "entryFile": "src/public_api.ts",
+    "umdModuleIds": {
+      "@ngHedgehog/core": "@ngHedgehog/core"
+    }
+  },
+  "whitelistedNonPeerDependencies": [
+    "tslib",
+    "@ngHedgehog/core"
+  ]
 }

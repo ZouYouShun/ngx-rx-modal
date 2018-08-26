@@ -1,0 +1,52 @@
+$popup-zIndex:500;
+:host {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  overflow: auto;
+  padding: 1em;
+  z-index: $popup-zIndex;
+  &.backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+  &.center {
+    align-items: center;
+  }
+  .window {
+    z-index: $popup-zIndex + 1; // margin: 1em;
+    padding: 1em;
+    overflow: hidden;
+    position: relative;
+    border-radius: 5px; // .content {
+    //   padding: 1em;
+    // }
+  } // right top area
+  .RightTop {
+    color: #2b7b82;
+    position: fixed;
+    right: 0;
+    top: 0;
+    padding: 12px 12px 16px 16px;
+    z-index: $popup-zIndex + 1;
+  }
+  .background {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
+// @include app-breakpoint('lt-md') {
+//   :host.md-fix {
+//     .window {
+//       width: 100% !important;
+//     }
+//   }
+// }
