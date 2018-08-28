@@ -19,7 +19,7 @@ import {
   ComponentFactoryResolver,
   Optional
 } from '@angular/core';
-import { addClassByString, addStyle, AutoDestroy } from '@ngHedgehog/core';
+import { addClassByString, addStyle, AutoDestroy } from '@nghedgehog/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 

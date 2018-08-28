@@ -5,11 +5,11 @@
   "lib": {
     "entryFile": "src/public_api.ts",
     "umdModuleIds": {
-      "@ngHedgehog/core": "@ngHedgehog/core"
+      "@nghedgehog/core": "@nghedgehog/core"
     }
   },
   "whitelistedNonPeerDependencies": [
     "tslib",
-    "@ngHedgehog/core"
+    "@nghedgehog/core"
   ]
 }
