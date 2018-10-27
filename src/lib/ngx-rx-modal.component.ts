@@ -20,6 +20,7 @@ import {
   Renderer2,
   TemplateRef,
   ViewChild,
+  ComponentRef,
 } from '@angular/core';
 import { addClassByString, addStyle, AutoDestroy } from '@nghedgehog/core';
 import { Subject } from 'rxjs';
@@ -99,11 +100,13 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
   private isBack = true;
   private closeRef: ChangeDetectorRef;
 
+  private componentRef: ComponentRef<NgxRxModalRef>;
+
   // @HostListener('window:popstate', ['$event'])
   // onPopstate(event) {
   //   // if (this._path.check(this.id)) {
   //   //   this.isBack = false;
-  //   //   this.close();
+  //   //   this.portalhost.detach();
   //   // }
   // }
 
@@ -116,6 +119,9 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
     private _factory: ComponentFactoryResolver
   ) {
     super();
+    if (Object.keys(_injectData.option.data).length === 0) {
+      _injectData.option.data = undefined;
+    }
   }
 
   @HostListener('@animate.done', ['$event']) animateDone(event) {
@@ -136,7 +142,7 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
         takeUntil(this._destroy$)
       ).subscribe(data => {
         this.sendData = data;
-        this.close();
+        this.portalhost.detach();
       });
     }
     this.handelStyle(this.option);
@@ -210,18 +216,14 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
         { provide: NGX_RX_MODAL_TOKEN, useValue: this.option.data }
       ]);
 
-    const componentRef = viewContainerRef.createComponent<NgxRxModalRef>(component, 0, injector);
+    this.componentRef = viewContainerRef.createComponent<NgxRxModalRef>(component, 0, injector);
 
-
-    // when data send back, close this dialog
-    if (componentRef.instance.complete) {
-      componentRef.instance.complete.pipe(
-        takeUntil(this._destroy$)
-      ).subscribe((data: any) => {
-        this.sendData = data;
-        this.close();
-      });
-    }
+    this.componentRef.instance.complete.pipe(
+      takeUntil(this._destroy$)
+    ).subscribe((data: any) => {
+      this.sendData = data;
+      this.portalhost.detach();
+    });
   }
 
   private loadCloseElm() {
@@ -236,7 +238,11 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
   }
 
   close() {
-    this.portalhost.detach();
+    if (this.component instanceof ComponentFactory) {
+      this.componentRef.instance.complete.next();
+    } else {
+      this.completeEmitter.next();
+    }
   }
 
   private setViewScroll() {

@@ -1,6 +1,6 @@
 {
   "name": "ngx-rx-modal",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "peerDependencies": {
     "@nghedgehog/core": "^0.0.1",
     "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
