@@ -5,5 +5,6 @@
 export * from './lib/ngx-rx-modal.service';
 export * from './lib/ngx-rx-modal.component';
 export * from './lib/ngx-rx-modal.module';
+export * from './lib/view-container.directive';
 export * from './lib/ngx-rx-modal.model';
 export * from './lib/cdk.service';

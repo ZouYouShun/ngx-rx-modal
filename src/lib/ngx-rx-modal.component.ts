@@ -1,42 +1,35 @@
+import { animate, animateChild, group, query, style, transition, trigger } from '@angular/animations';
 import { DomPortalOutlet } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
   AfterContentInit,
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ComponentFactory,
+  ComponentFactoryResolver,
   ElementRef,
   EventEmitter,
   HostBinding,
   HostListener,
   Inject,
   Injector,
+  OnDestroy,
+  Optional,
   ReflectiveInjector,
   Renderer2,
   TemplateRef,
   ViewChild,
-  OnDestroy,
-  ComponentFactoryResolver,
-  Optional
 } from '@angular/core';
 import { addClassByString, addStyle, AutoDestroy } from '@nghedgehog/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-// import { PathService } from '../../service/path.service';
-import { NGX_RX_MODAL_TOKEN, NgxRxModalOption, NgxRxModalRef, NGX_RX_MODAL_CLOSE } from './ngx-rx-modal.model';
-import { ViewContainerDirective } from './view-container.directive';
-import {
-  trigger,
-  transition,
-  group,
-  style,
-  animate,
-  query,
-  animateChild
-} from '@angular/animations';
 import { CloseComponent } from './close/close.component';
+import { NGX_RX_MODAL_CLOSE, NGX_RX_MODAL_TOKEN, NgxRxModalOption, NgxRxModalRef } from './ngx-rx-modal.model';
+import { ViewContainerDirective } from './view-container.directive';
 
+// import { PathService } from '../../service/path.service';
 interface InjectModel {
   portalhost: DomPortalOutlet;
   component: ComponentFactory<any> | TemplateRef<any>;
@@ -85,7 +78,7 @@ const time = '195ms cubic-bezier(0.4, 0.0, 0.6, 1)';
     ])
   ]
 })
-export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit, AfterViewInit {
+export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit, AfterViewInit, OnDestroy {
   @HostBinding('@animate') animate = 'fadeIn';
 
   @ViewChild('panel') panel: ElementRef;
@@ -104,6 +97,7 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
   completeEmitter: EventEmitter<string>;
   private sendData: any;
   private isBack = true;
+  private closeRef: ChangeDetectorRef;
 
   // @HostListener('window:popstate', ['$event'])
   // onPopstate(event) {
@@ -120,7 +114,6 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
     private _elm: ElementRef,
     private _renderer: Renderer2,
     private _factory: ComponentFactoryResolver
-    // private _path: PathService,
   ) {
     super();
   }
@@ -183,6 +176,13 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
     }
   }
 
+  ngOnDestroy() {
+    // https://stackoverflow.com/questions/42387348/angular2-dynamic-content-loading-throws-expression-changed-exception
+    if (this.closeRef) {
+      this.closeRef.detach();
+    }
+  }
+
   // handel the pop-up style and class
   private handelStyle(config: NgxRxModalOption) {
     if (config) {
@@ -227,8 +227,11 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
   private loadCloseElm() {
     if (!this.option.disableCloseButton) {
       const viewContainerRef = this.closeView.viewContainerRef;
-      const component = this._factory.resolveComponentFactory(this.closeComponent || CloseComponent);
-      viewContainerRef.createComponent(component);
+      this.closeRef = viewContainerRef.createComponent(
+        this._factory.resolveComponentFactory(this.closeComponent || CloseComponent)
+      ).changeDetectorRef;
+
+      this.closeRef.detectChanges();
     }
   }
 

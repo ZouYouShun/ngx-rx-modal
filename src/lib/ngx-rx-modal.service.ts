@@ -1,15 +1,11 @@
 import { ComponentPortal } from '@angular/cdk/portal';
-import {
-  ComponentFactory,
-  Injectable,
-  TemplateRef,
-} from '@angular/core';
-import { of, Observable } from 'rxjs';
-import { switchMap, take, map } from 'rxjs/operators';
+import { ComponentFactory, Injectable, TemplateRef } from '@angular/core';
+import { forkJoin, Observable, of } from 'rxjs';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 
-import { NgxRxModalOption, NGX_RX_MODAL_TOKEN } from './ngx-rx-modal.model';
-import { NgxRxModalComponent } from './ngx-rx-modal.component';
 import { CdkService } from './cdk.service';
+import { NgxRxModalComponent } from './ngx-rx-modal.component';
+import { NGX_RX_MODAL_TOKEN, NgxRxModalOption } from './ngx-rx-modal.model';
 
 @Injectable({
   providedIn: 'root'
@@ -28,18 +24,26 @@ export class NgxRxModalService {
       switchMap(() => {
         const portalhost = this._cdk.createBodyPortalHost();
 
-        const componentRef = portalhost.attach(new ComponentPortal(
-          NgxRxModalComponent,
-          undefined,
-          this._cdk.createInjector<NgxRxModalOption>(NGX_RX_MODAL_TOKEN, {
-            portalhost,
-            component,
-            option,
-            // id: this._path.add(option.title, option.redirectURL)
-          })
-        ));
-
-        return componentRef.instance.completeSubject.asObservable().pipe(
+        return getResolveObs(option).pipe(
+          map(data => {
+            return portalhost.attach(new ComponentPortal(
+              NgxRxModalComponent,
+              undefined,
+              this._cdk.createInjector<NgxRxModalOption>(NGX_RX_MODAL_TOKEN, {
+                portalhost,
+                component,
+                option: {
+                  ...option,
+                  data: {
+                    ...option.data,
+                    ...data
+                  }
+                },
+                // id: this._path.add(option.title, option.redirectURL)
+              })
+            ));
+          }),
+          switchMap(componentRef => componentRef.instance.completeSubject.asObservable()),
           take(1),
           map(([data, isBack]) => data)
           // switchMap(([data, isBack]) => {
@@ -47,10 +51,23 @@ export class NgxRxModalService {
           //     map(() => data)
           //   );
           // })
-        ); // only take once;
+        );
+
+
+
       })
     );
-
   }
-
 }
+
+function getResolveObs(option: NgxRxModalOption) {
+  let obs$ = of({});
+  if (option.resolve) {
+    const resolveData = {};
+    obs$ = forkJoin(Object.keys(option.resolve).map(x => option.resolve[x].pipe(tap(result => {
+      resolveData[x] = result;
+    })))).pipe(map(() => resolveData));
+  }
+  return obs$;
+}
+

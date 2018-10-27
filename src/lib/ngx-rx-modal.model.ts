@@ -1,5 +1,5 @@
-import {  InjectionToken } from '@angular/core';
-import { Subject } from 'rxjs';
+import { InjectionToken } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 
 export const NGX_RX_MODAL_TOKEN = new InjectionToken('NGX_RX_MODAL_TOKEN');
 export const NGX_RX_MODAL_CLOSE = new InjectionToken('NGX_RX_MODAL_CLOSE');
@@ -13,6 +13,8 @@ export interface NgxRxModalOption {
   title?: string;
   /** Data being injected into the child component. */
   data?: any;
+  /** Data being injected into the child component. */
+  resolve?: { [key: string]: Observable<any> };
   /** Custom class for the overlay pane. */
   panelClass?: string;
   /** Custom class for the backdrop, */
