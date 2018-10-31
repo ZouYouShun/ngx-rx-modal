@@ -30,7 +30,7 @@ import { CloseComponent } from './close/close.component';
 import { NGX_RX_MODAL_CLOSE, NGX_RX_MODAL_TOKEN, NgxRxModalOption, NgxRxModalRef } from './ngx-rx-modal.model';
 import { ViewContainerDirective } from './view-container.directive';
 
-// import { PathService } from '../../service/path.service';
+import { PathService } from './path.service';
 interface InjectModel {
   portalhost: DomPortalOutlet;
   component: ComponentFactory<any> | TemplateRef<any>;
@@ -102,13 +102,14 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
 
   private componentRef: ComponentRef<NgxRxModalRef>;
 
-  // @HostListener('window:popstate', ['$event'])
-  // onPopstate(event) {
-  //   // if (this._path.check(this.id)) {
-  //   //   this.isBack = false;
-  //   //   this.portalhost.detach();
-  //   // }
-  // }
+  @HostListener('window:popstate', ['$event'])
+  onPopstate(event) {
+    // if there isn't redirectURL, detach modal
+    if (this._path.check(this.id)) {
+      this.isBack = false;
+      this.portalhost.detach();
+    }
+  }
 
   constructor(
     @Inject(NGX_RX_MODAL_TOKEN) private _injectData: InjectModel,
@@ -116,7 +117,8 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
     @Inject(DOCUMENT) private document: any,
     private _elm: ElementRef,
     private _renderer: Renderer2,
-    private _factory: ComponentFactoryResolver
+    private _factory: ComponentFactoryResolver,
+    private _path: PathService
   ) {
     super();
     if (Object.keys(_injectData.option.data).length === 0) {
@@ -193,7 +195,7 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
   private handelStyle(config: NgxRxModalOption) {
     if (config) {
 
-      addClassByString(this._renderer, this._elm.nativeElement, config.backdropClass);
+      addClassByString(this._renderer, this._elm.nativeElement, config.backdropClass || 'bg-dialog');
       addStyle(this._renderer, this._elm.nativeElement, config.backdropStyle);
 
       if (!config.notMdFix) this._renderer.addClass(this._elm.nativeElement, 'md-fix');

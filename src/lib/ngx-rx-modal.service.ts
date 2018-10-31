@@ -1,19 +1,30 @@
 import { ComponentPortal } from '@angular/cdk/portal';
+import { Location } from '@angular/common';
 import { ComponentFactory, Injectable, TemplateRef } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { forkJoin, Observable, of } from 'rxjs';
-import { map, switchMap, take, tap } from 'rxjs/operators';
+import { delay, map, switchMap, take, tap } from 'rxjs/operators';
 
 import { CdkService } from './cdk.service';
 import { NgxRxModalComponent } from './ngx-rx-modal.component';
 import { NGX_RX_MODAL_TOKEN, NgxRxModalOption } from './ngx-rx-modal.model';
+import { PathService } from './path.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NgxRxModalService {
 
+
+
   constructor(
-    private _cdk: CdkService) { }
+    private _cdk: CdkService,
+    private _location: Location,
+    private _router: Router,
+    private _title: Title,
+    private _path: PathService
+  ) { }
 
   open(
     component: TemplateRef<any> | ComponentFactory<any>,
@@ -23,6 +34,8 @@ export class NgxRxModalService {
     return of(null).pipe(
       switchMap(() => {
         const portalhost = this._cdk.createBodyPortalHost();
+
+        const id = this._path.add(option.title, option.redirectURL);
 
         return getResolveObs(option).pipe(
           map(data => {
@@ -39,25 +52,22 @@ export class NgxRxModalService {
                     ...data
                   }
                 },
-                // id: this._path.add(option.title, option.redirectURL)
+                id
               })
             ));
           }),
           switchMap(componentRef => componentRef.instance.completeSubject.asObservable()),
           take(1),
-          map(([data, isBack]) => data)
-          // switchMap(([data, isBack]) => {
-          //   return this._path.remove(componentRef.instance.id, isBack, !option.redirectURL).pipe(
-          //     map(() => data)
-          //   );
-          // })
+          switchMap(([data, isBack]) => {
+            return this._path.remove(id, isBack, !option.redirectURL).pipe(
+              map(() => data)
+            );
+          })
         );
-
-
-
       })
     );
   }
+
 }
 
 function getResolveObs(option: NgxRxModalOption) {

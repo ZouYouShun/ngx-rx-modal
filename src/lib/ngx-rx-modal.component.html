@@ -1,6 +1,6 @@
 <div #panel
   [@animate]="option.windowAnimate"
-  class="window bg-dialog c-base">
+  class="window c-base">
   <!-- content -->
   <ng-container *ngIf="isTemplate; else mainElm">
     <ng-container *ngTemplateOutlet="component, context: {

@@ -35,5 +35,6 @@ export interface NgxRxModalOption {
   elevation?: number;
   /** is check layout in the container */
   fixedContainer?: boolean;
+  /** is add url with modal */
   redirectURL?: string;
 }
