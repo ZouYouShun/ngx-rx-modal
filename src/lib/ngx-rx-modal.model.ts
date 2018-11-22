@@ -12,7 +12,7 @@ export interface NgxRxModalOption {
   /** This title will add on browser title */
   title?: string;
   /** Data being injected into the child component. */
-  data?: any;
+  data?: { [key: string]: any };
   /** Data being injected into the child component. */
   resolve?: { [key: string]: Observable<any> };
   /** Custom class for the overlay pane. */
@@ -28,7 +28,7 @@ export interface NgxRxModalOption {
   disableCloseButton?: boolean;
   disableBackdropClick?: boolean;
   /* main window animate */
-  windowAnimate?: string;
+  windowAnimate?: 'zoomIn' | 'bounceInDown' | 'fadeIn';
   /** when lt-md fix to 100%  */
   notMdFix?: boolean;
   /** elevation height */
@@ -37,4 +37,6 @@ export interface NgxRxModalOption {
   fixedContainer?: boolean;
   /** is add url with modal */
   redirectURL?: string;
+  /** is add url with modal */
+  noRedirect?: boolean;
 }

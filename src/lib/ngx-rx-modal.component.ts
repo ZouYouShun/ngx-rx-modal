@@ -1,4 +1,4 @@
-import { animate, animateChild, group, query, style, transition, trigger } from '@angular/animations';
+import { animate } from '@angular/animations';
 import { DomPortalOutlet } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
@@ -8,6 +8,7 @@ import {
   Component,
   ComponentFactory,
   ComponentFactoryResolver,
+  ComponentRef,
   ElementRef,
   EventEmitter,
   HostBinding,
@@ -20,17 +21,17 @@ import {
   Renderer2,
   TemplateRef,
   ViewChild,
-  ComponentRef,
 } from '@angular/core';
 import { addClassByString, addStyle, AutoDestroy } from '@nghedgehog/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { allAnimation } from './animation';
 import { CloseComponent } from './close/close.component';
 import { NGX_RX_MODAL_CLOSE, NGX_RX_MODAL_TOKEN, NgxRxModalOption, NgxRxModalRef } from './ngx-rx-modal.model';
+import { PathService } from './path.service';
 import { ViewContainerDirective } from './view-container.directive';
 
-import { PathService } from './path.service';
 interface InjectModel {
   portalhost: DomPortalOutlet;
   component: ComponentFactory<any> | TemplateRef<any>;
@@ -38,45 +39,12 @@ interface InjectModel {
   id: string;
 }
 
-const time = '195ms cubic-bezier(0.4, 0.0, 0.6, 1)';
-
 @Component({
   selector: 'ngx-rx-modal',
   templateUrl: './ngx-rx-modal.component.html',
   styleUrls: ['./ngx-rx-modal.component.scss'],
   animations: [
-    trigger('animate', [
-      transition('* => fadeIn', [
-        group([
-          style({ opacity: 0 }),
-          animate(time,
-            style({ opacity: 1 })
-          ),
-          query('@*', animateChild(), { optional: true })
-        ])
-      ]),
-      transition('fadeIn => void', [
-        group([
-          style({ opacity: 1 }),
-          animate(time,
-            style({ opacity: 0 })
-          ),
-          query('@*', animateChild(), { optional: true })
-        ])
-      ]),
-      transition('* => slideInRtoL', [
-        style({ transform: 'translate3d(100%, 0, 0)' }),
-        animate(time,
-          style({ transform: 'translate3d(0, 0, 0)' })
-        )
-      ]),
-      transition('slideInRtoL => void', [
-        style({ transform: 'translate3d(0, 0, 0)' }),
-        animate(time,
-          style({ transform: 'translate3d(100%, 0, 0)' })
-        )
-      ]),
-    ])
+    allAnimation
   ]
 })
 export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit, AfterViewInit, OnDestroy {
@@ -195,13 +163,13 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
   private handelStyle(config: NgxRxModalOption) {
     if (config) {
 
-      addClassByString(this._renderer, this._elm.nativeElement, config.backdropClass || 'bg-dialog');
+      addClassByString(this._renderer, this._elm.nativeElement, config.backdropClass);
       addStyle(this._renderer, this._elm.nativeElement, config.backdropStyle);
 
       if (!config.notMdFix) this._renderer.addClass(this._elm.nativeElement, 'md-fix');
 
       addStyle(this._renderer, this.panel.nativeElement, config.panelStyle);
-      addClassByString(this._renderer, this.panel.nativeElement, config.panelClass);
+      addClassByString(this._renderer, this.panel.nativeElement, config.panelClass || 'bg-dialog');
 
       if (!config.elevation) config.elevation = 24;
       this._renderer.addClass(this.panel.nativeElement, `mat-elevation-z${config.elevation}`);

@@ -24,12 +24,14 @@ export class PathService {
     private _title: Title,
   ) { }
 
-  add(title: string, url?: string) {
+  add(title: string, noRedirect: boolean, url?: string ) {
 
     const id = Math.random().toString(35).substr(2, 7);
     const toUrl = url ? `${this._router.url}/${url}` : `${this._router.url}`;
 
-    this._location.go(toUrl);
+    if (!noRedirect) {
+      this._location.go(toUrl);
+    }
 
     this.list.push({
       id,
@@ -45,7 +47,7 @@ export class PathService {
     return id;
   }
 
-  remove(id: string, isBack: boolean, isAlc: boolean = false) {
+  remove(id: string, isBack: boolean, noRedirect: boolean) {
     return of(null).pipe(
       tap(() => {
         const i = this.list.findIndex((item) => item.id === id);
@@ -55,7 +57,7 @@ export class PathService {
 
         this._title.setTitle(data.saveTitle);
 
-        if (isBack) {
+        if (isBack && !noRedirect) {
           this._location.back();
         }
       }),

@@ -1,10 +1,7 @@
 import { ComponentPortal } from '@angular/cdk/portal';
-import { Location } from '@angular/common';
 import { ComponentFactory, Injectable, TemplateRef } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { Router } from '@angular/router';
 import { forkJoin, Observable, of } from 'rxjs';
-import { delay, map, switchMap, take, tap } from 'rxjs/operators';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 
 import { CdkService } from './cdk.service';
 import { NgxRxModalComponent } from './ngx-rx-modal.component';
@@ -16,13 +13,8 @@ import { PathService } from './path.service';
 })
 export class NgxRxModalService {
 
-
-
   constructor(
     private _cdk: CdkService,
-    private _location: Location,
-    private _router: Router,
-    private _title: Title,
     private _path: PathService
   ) { }
 
@@ -35,7 +27,7 @@ export class NgxRxModalService {
       switchMap(() => {
         const portalhost = this._cdk.createBodyPortalHost();
 
-        const id = this._path.add(option.title, option.redirectURL);
+        const id = this._path.add(option.title, option.noRedirect, option.redirectURL);
 
         return getResolveObs(option).pipe(
           map(data => {
@@ -59,7 +51,7 @@ export class NgxRxModalService {
           switchMap(componentRef => componentRef.instance.completeSubject.asObservable()),
           take(1),
           switchMap(([data, isBack]) => {
-            return this._path.remove(id, isBack, !option.redirectURL).pipe(
+            return this._path.remove(id, isBack, option.noRedirect).pipe(
               map(() => data)
             );
           })
