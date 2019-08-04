@@ -2,9 +2,9 @@
   "name": "ngx-rx-modal",
   "version": "0.0.11",
   "peerDependencies": {
+    "@angular/common": "^8.0.1",
+    "@angular/core": "^8.0.1",
     "@nghedgehog/core": "^0.0.1",
-    "@angular/common": ">=6.0.0",
-    "@angular/core": ">=6.0.0",
-    "@angular/cdk": ">=6.0.0"
+    "@angular/cdk": ">=8.0.0"
   }
 }
