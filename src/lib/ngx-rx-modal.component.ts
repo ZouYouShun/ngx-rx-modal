@@ -52,7 +52,7 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
 
   @ViewChild('panel', { static: true }) panel: ElementRef;
   @ViewChild('mainElm', { read: ViewContainerDirective, static: true }) view: ViewContainerDirective;
-  @ViewChild('closeElm', { read: ViewContainerDirective, static: false }) closeView: ViewContainerDirective;
+  @ViewChild('closeElm', { read: ViewContainerDirective }) closeView: ViewContainerDirective;
 
   portalhost: DomPortalOutlet = this._injectData.portalhost;
   component: ComponentFactory<any> | TemplateRef<any> = this._injectData.component;
