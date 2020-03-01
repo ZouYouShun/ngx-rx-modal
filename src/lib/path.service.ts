@@ -6,15 +6,14 @@ import { of } from 'rxjs';
 import { delay, tap } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PathService {
-
   private list: {
-    id: string,
-    fromUrl: string,
-    toUrl: string,
-    saveTitle: string
+    id: string;
+    fromUrl: string;
+    toUrl: string;
+    saveTitle: string;
   }[] = [];
   private canRunBack = true;
 
@@ -22,11 +21,12 @@ export class PathService {
     private _location: Location,
     private _router: Router,
     private _title: Title,
-  ) { }
+  ) {}
 
-  add(title: string, noRedirect: boolean, url?: string ) {
-
-    const id = Math.random().toString(35).substr(2, 7);
+  add(title: string, noRedirect: boolean, url?: string) {
+    const id = Math.random()
+      .toString(35)
+      .substr(2, 7);
     const toUrl = url ? `${this._router.url}/${url}` : `${this._router.url}`;
 
     if (!noRedirect) {
@@ -37,7 +37,7 @@ export class PathService {
       id,
       fromUrl: this._router.url,
       toUrl,
-      saveTitle: this._title.getTitle()
+      saveTitle: this._title.getTitle(),
     });
 
     if (title) {
@@ -63,7 +63,7 @@ export class PathService {
       }),
       // this delay will prevent when back is not compelete and next active is go other page
       delay(100),
-      tap(() => this.canRunBack = true)
+      tap(() => (this.canRunBack = true)),
     );
   }
 

@@ -9,67 +9,74 @@ import { NGX_RX_MODAL_TOKEN, NgxRxModalOption } from './ngx-rx-modal.model';
 import { PathService } from './path.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NgxRxModalService {
-
-  constructor(
-    private _cdk: CdkService,
-    private _path: PathService
-  ) { }
+  constructor(private _cdk: CdkService, private _path: PathService) {}
 
   open(
     component: TemplateRef<any> | ComponentFactory<any>,
-    option: NgxRxModalOption = {}
+    option: NgxRxModalOption = {},
   ): Observable<any> {
-
     return of(null).pipe(
       switchMap(() => {
         const portalhost = this._cdk.createBodyPortalHost();
 
-        const id = this._path.add(option.title, option.noRedirect, option.redirectURL);
+        const id = this._path.add(
+          option.title,
+          option.noRedirect,
+          option.redirectURL,
+        );
 
         return getResolveObs(option).pipe(
-          map(data => {
-            return portalhost.attach(new ComponentPortal(
-              NgxRxModalComponent,
-              undefined,
-              this._cdk.createInjector<NgxRxModalOption>(NGX_RX_MODAL_TOKEN, {
-                portalhost,
-                component,
-                option: {
-                  ...option,
-                  data: {
-                    ...option.data,
-                    ...data
-                  }
-                },
-                id
-              })
-            ));
+          map((data) => {
+            return portalhost.attach(
+              new ComponentPortal(
+                NgxRxModalComponent,
+                undefined,
+                this._cdk.createInjector<NgxRxModalOption>(NGX_RX_MODAL_TOKEN, {
+                  portalhost,
+                  component,
+                  option: {
+                    ...option,
+                    data: {
+                      ...option.data,
+                      ...data,
+                    },
+                  },
+                  id,
+                }),
+              ),
+            );
           }),
-          switchMap(componentRef => componentRef.instance.completeSubject.asObservable()),
+          switchMap((componentRef) =>
+            componentRef.instance.completeSubject.asObservable(),
+          ),
           take(1),
           switchMap(([data, isBack]) => {
-            return this._path.remove(id, isBack, option.noRedirect).pipe(
-              map(() => data)
-            );
-          })
+            return this._path
+              .remove(id, isBack, option.noRedirect)
+              .pipe(map(() => data));
+          }),
         );
-      })
+      }),
     );
   }
-
 }
 
 function getResolveObs(option: NgxRxModalOption) {
   let obs$ = of({});
   if (option.resolve) {
     const resolveData = {};
-    obs$ = forkJoin(Object.keys(option.resolve).map(x => option.resolve[x].pipe(tap(result => {
-      resolveData[x] = result;
-    })))).pipe(map(() => resolveData));
+    obs$ = forkJoin(
+      Object.keys(option.resolve).map((x) =>
+        option.resolve[x].pipe(
+          tap((result) => {
+            resolveData[x] = result;
+          }),
+        ),
+      ),
+    ).pipe(map(() => resolveData));
   }
   return obs$;
 }
-

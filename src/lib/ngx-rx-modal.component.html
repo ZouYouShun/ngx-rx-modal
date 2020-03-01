@@ -1,12 +1,15 @@
-<div #panel
-  [@animate]="option.windowAnimate"
-  class="window text-base">
+<div #panel [@animate]="option.windowAnimate" class="window text-base">
   <!-- content -->
   <ng-container *ngIf="isTemplate; else mainElm">
-    <ng-container *ngTemplateOutlet="component, context: {
-      $implicit: option.data,
-      complete: completeEmitter
-    }"></ng-container>
+    <ng-container
+      *ngTemplateOutlet="
+        component;
+        context: {
+          $implicit: option.data,
+          complete: completeEmitter
+        }
+      "
+    ></ng-container>
   </ng-container>
 
   <ng-template #mainElm view-container></ng-template>
@@ -18,7 +21,11 @@
 </ng-container>
 
 <!--close button-->
-<div [@animate]="'slideInRtoL'"
-  *ngIf="!option.disableCloseButton" class="RightTop" (click)="close()">
+<div
+  [@animate]="'slideInRtoL'"
+  *ngIf="!option.disableCloseButton"
+  class="RightTop"
+  (click)="close()"
+>
   <ng-template #closeElm view-container></ng-template>
 </div>

@@ -1,4 +1,3 @@
-import { animate } from '@angular/animations';
 import { DomPortalOutlet } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
@@ -17,7 +16,6 @@ import {
   Injector,
   OnDestroy,
   Optional,
-  ReflectiveInjector,
   Renderer2,
   TemplateRef,
   ViewChild,
@@ -28,7 +26,12 @@ import { takeUntil } from 'rxjs/operators';
 
 import { allAnimation } from './animation';
 import { CloseComponent } from './close/close.component';
-import { NGX_RX_MODAL_CLOSE, NGX_RX_MODAL_TOKEN, NgxRxModalOption, NgxRxModalRef } from './ngx-rx-modal.model';
+import {
+  NGX_RX_MODAL_CLOSE,
+  NGX_RX_MODAL_TOKEN,
+  NgxRxModalOption,
+  NgxRxModalRef,
+} from './ngx-rx-modal.model';
 import { PathService } from './path.service';
 import { ViewContainerDirective } from './view-container.directive';
 
@@ -43,19 +46,21 @@ interface InjectModel {
   selector: 'ngx-rx-modal',
   templateUrl: './ngx-rx-modal.component.html',
   styleUrls: ['./ngx-rx-modal.component.scss'],
-  animations: [
-    allAnimation
-  ]
+  animations: [allAnimation],
 })
-export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit, AfterViewInit, OnDestroy {
+export class NgxRxModalComponent extends AutoDestroy
+  implements AfterContentInit, AfterViewInit, OnDestroy {
   @HostBinding('@animate') animate = 'fadeIn';
 
   @ViewChild('panel', { static: true }) panel: ElementRef;
-  @ViewChild('mainElm', { read: ViewContainerDirective, static: true }) view: ViewContainerDirective;
-  @ViewChild('closeElm', { read: ViewContainerDirective }) closeView: ViewContainerDirective;
+  @ViewChild('mainElm', { read: ViewContainerDirective, static: true })
+  view: ViewContainerDirective;
+  @ViewChild('closeElm', { read: ViewContainerDirective })
+  closeView: ViewContainerDirective;
 
   portalhost: DomPortalOutlet = this._injectData.portalhost;
-  component: ComponentFactory<any> | TemplateRef<any> = this._injectData.component;
+  component: ComponentFactory<any> | TemplateRef<any> = this._injectData
+    .component;
   option: NgxRxModalOption = this._injectData.option;
   id: string = this._injectData.id;
 
@@ -86,7 +91,7 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
     private _elm: ElementRef,
     private _renderer: Renderer2,
     private _factory: ComponentFactoryResolver,
-    private _path: PathService
+    private _path: PathService,
   ) {
     super();
     if (Object.keys(_injectData.option.data).length === 0) {
@@ -108,19 +113,15 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
     } else {
       this.completeEmitter = new EventEmitter<string>();
 
-      this.completeEmitter.pipe(
-        takeUntil(this._destroy$)
-      ).subscribe(data => {
+      this.completeEmitter.pipe(takeUntil(this._destroy$)).subscribe((data) => {
         this.sendData = data;
         this.portalhost.detach();
       });
     }
     this.handelStyle(this.option);
-
   }
 
   ngAfterViewInit(): void {
-
     this.setViewScroll();
     this.loadCloseElm();
 
@@ -132,22 +133,30 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
         height: panelElm.clientHeight,
         width: panelElm.clientWidth,
         top: panelElm.offsetTop,
-        left: panelElm.offsetLeft
+        left: panelElm.offsetLeft,
       };
 
       const windowElm = {
         height: popElm.offsetHeight,
-        width: popElm.offsetWidth
+        width: popElm.offsetWidth,
       };
 
-      const heightDis = (elmDetial.top + elmDetial.height) - windowElm.height;
-      const widthDis = (elmDetial.left + elmDetial.width) - windowElm.width;
+      const heightDis = elmDetial.top + elmDetial.height - windowElm.height;
+      const widthDis = elmDetial.left + elmDetial.width - windowElm.width;
 
       if (heightDis > 0) {
-        this._renderer.setStyle(this.panel.nativeElement, 'top', `${windowElm.height - elmDetial.height}px`);
+        this._renderer.setStyle(
+          this.panel.nativeElement,
+          'top',
+          `${windowElm.height - elmDetial.height}px`,
+        );
       }
       if (widthDis > 0) {
-        this._renderer.setStyle(this.panel.nativeElement, 'left', `${windowElm.width - elmDetial.width}px`);
+        this._renderer.setStyle(
+          this.panel.nativeElement,
+          'left',
+          `${windowElm.width - elmDetial.width}px`,
+        );
       }
     }
   }
@@ -162,17 +171,31 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
   // handel the pop-up style and class
   private handelStyle(config: NgxRxModalOption) {
     if (config) {
-
-      addClassByString(this._renderer, this._elm.nativeElement, config.backdropClass);
+      addClassByString(
+        this._renderer,
+        this._elm.nativeElement,
+        config.backdropClass,
+      );
       addStyle(this._renderer, this._elm.nativeElement, config.backdropStyle);
 
-      if (!config.notMdFix) this._renderer.addClass(this._elm.nativeElement, 'md-fix');
+      if (!config.notMdFix) {
+        this._renderer.addClass(this._elm.nativeElement, 'md-fix');
+      }
 
       addStyle(this._renderer, this.panel.nativeElement, config.panelStyle);
-      addClassByString(this._renderer, this.panel.nativeElement, config.panelClass || 'bg-dialog');
+      addClassByString(
+        this._renderer,
+        this.panel.nativeElement,
+        config.panelClass || 'bg-dialog',
+      );
 
-      if (!config.elevation) config.elevation = 24;
-      this._renderer.addClass(this.panel.nativeElement, `mat-elevation-z${config.elevation}`);
+      if (!config.elevation) {
+        config.elevation = 24;
+      }
+      this._renderer.addClass(
+        this.panel.nativeElement,
+        `mat-elevation-z${config.elevation}`,
+      );
     }
   }
 
@@ -181,26 +204,40 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
     const viewContainerRef = this.view.viewContainerRef;
     // viewContainerRef.clear();
 
-    const injector: Injector =
-      ReflectiveInjector.resolveAndCreate([
-        { provide: NGX_RX_MODAL_TOKEN, useValue: this.option.data }
-      ]);
-
-    this.componentRef = viewContainerRef.createComponent<NgxRxModalRef>(component, 0, injector);
-
-    this.componentRef.instance.complete.pipe(
-      takeUntil(this._destroy$)
-    ).subscribe((data: any) => {
-      this.sendData = data;
-      this.portalhost.detach();
+    const injector: Injector = Injector.create({
+      providers: [
+        {
+          provide: NGX_RX_MODAL_TOKEN,
+          useValue: this.option.data,
+        },
+      ],
     });
+
+    this.componentRef = viewContainerRef.createComponent<NgxRxModalRef>(
+      component,
+      0,
+      injector,
+    );
+
+    if (!this.componentRef.instance.complete) {
+      this.componentRef.instance.complete = new Subject();
+    }
+
+    this.componentRef.instance.complete
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((data: any) => {
+        this.sendData = data;
+        this.portalhost.detach();
+      });
   }
 
   private loadCloseElm() {
     if (!this.option.disableCloseButton) {
       const viewContainerRef = this.closeView.viewContainerRef;
       this.closeRef = viewContainerRef.createComponent(
-        this._factory.resolveComponentFactory(this.closeComponent || CloseComponent)
+        this._factory.resolveComponentFactory(
+          this.closeComponent || CloseComponent,
+        ),
       ).changeDetectorRef;
 
       this.closeRef.detectChanges();
@@ -216,7 +253,6 @@ export class NgxRxModalComponent extends AutoDestroy implements AfterContentInit
   }
 
   private setViewScroll() {
-
     // console.log(this.document.body.clientWidth);
     const css = `body {
       overflow: hidden;
